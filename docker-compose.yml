@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+    image: fixture-planner:local
+    container_name: fixture-planner-app
+    environment:
+      # Container listening port (internal); host mapping uses HOST_PORT below.
+      PORT: "8080"
+    ports:
+      # Configurable host port: HOST_PORT=9090 docker compose up app
+      - "${HOST_PORT:-8080}:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 2s
+
+  # One-shot acceptance service: image build happens on `up`, then it runs
+  # the code test suite and the HTTP smoke against the app service, and
+  # exits reporting the acceptance result via its own exit code.
+  verify:
+    image: fixture-planner:local
+    build:
+      context: .
+    container_name: fixture-planner-verify
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      BASE_URL: "http://app:8080"
+    restart: "no"
+    healthcheck:
+      disable: true
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "==> [verify] image built, running code tests"
+        node --test
+        echo "==> [verify] running HTTP smoke against $$BASE_URL"
+        node scripts/smoke.mjs
+        echo "==> [verify] ACCEPTANCE PASSED"

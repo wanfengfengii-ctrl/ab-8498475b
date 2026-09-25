@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>卫星太阳翼支撑垫选点裁决</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>卫星太阳翼展开试验 · 支撑垫选点裁决</h1>
+    <p class="subtitle">四轨各选一点 · 偏差矩形四角严格位于支撑凸包内 · 最大化最小稳定裕量</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <h2>参数录入</h2>
+
+      <div class="form-group">
+        <label>四条导轨候选点（每行一个 <code>x, y</code>，编号自上而下）</label>
+        <div class="rails-grid" id="railsGrid"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>翼板批准边界 min（x, y）</label>
+          <input id="boundsMin" value="0, 0" />
+        </div>
+        <div class="form-group">
+          <label>边界 max（x, y）</label>
+          <input id="boundsMax" value="1000, 600" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>重心标称坐标（x, y）</label>
+          <input id="cg" value="500, 300" />
+        </div>
+        <div class="form-group">
+          <label>横 / 纵偏差 dx, dy</label>
+          <input id="deviation" value="60, 40" />
+        </div>
+        <div class="form-group">
+          <label>支撑垫最小间距 (mm)</label>
+          <input id="minSpacing" type="number" value="300" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="generateBtn" class="primary">生成选点方案</button>
+        <button id="sampleBtn" class="ghost" type="button">载入示例</button>
+        <button id="infeasibleSampleBtn" class="ghost" type="button">载入无解示例</button>
+      </div>
+      <div id="formError" class="form-error" hidden></div>
+    </section>
+
+    <section class="panel result-panel">
+      <h2>裁决结果</h2>
+      <div id="emptyHint" class="empty-hint">提交参数后，此处显示四个选点、支撑凸包与四角稳定裕量。</div>
+
+      <div id="resultBlock" hidden>
+        <div id="statusBanner" class="banner"></div>
+        <div id="summary"></div>
+        <div class="canvas-wrap">
+          <svg id="planSvg" viewBox="0 0 800 520" role="img" aria-label="支撑凸包与偏差矩形示意图"></svg>
+        </div>
+        <div id="details"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>POST /api/fixture-plans · 完整组合直接裁决</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
